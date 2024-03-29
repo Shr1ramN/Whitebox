@@ -1,36 +1,58 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
+async function activate(context) {
+    console.log('Congratulations, your extension "whitebox" is now active!');
 
-/**
- * @param {vscode.ExtensionContext} context
- */
-function activate(context) {
+    let disposable = vscode.commands.registerCommand('whitebox.analyzePythonFiles', async function () {
+        try {
+            const workspaceFolders = vscode.workspace.workspaceFolders;
+            if (!workspaceFolders) {
+                vscode.window.showErrorMessage('No workspace opened.');
+                return;
+            }
+            const folderPath = workspaceFolders[0].uri.fsPath; // Assuming the first workspace folder
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "whitebox" is now active!');
+            const pythonFiles = await getPythonFiles(folderPath);
+            if (pythonFiles.length === 0) {
+                vscode.window.showInformationMessage('No Python files found in the workspace folder.');
+                return;
+            }
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with  registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('whitebox.helloWorld', function () {
-		// The code you place here will be executed every time your command is executed
+            const summaries = await analyzePythonCode(pythonFiles);
+            const summaryFilePath = vscode.Uri.file(`${folderPath}/summaries.txt`);
+            await vscode.workspace.fs.writeFile(summaryFilePath, Buffer.from(summaries.join('\n'), 'utf8'));
 
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from whitebox!');
-	});
+            vscode.window.showInformationMessage(`Summaries generated and saved to ${summaryFilePath}`);
+        } catch (error) {
+            console.error('Error analyzing Python files:', error.message);
+            vscode.window.showErrorMessage('Error analyzing Python files.');
+        }
+    });
 
-	context.subscriptions.push(disposable);
+    context.subscriptions.push(disposable);
 }
 
-// This method is called when your extension is deactivated
+async function getPythonFiles(folderPath) {
+    const pythonFiles = [];
+    const files = await vscode.workspace.findFiles('**/*.py');
+    files.forEach(file => pythonFiles.push(file.fsPath));
+    return pythonFiles;
+}
+
+async function analyzePythonCode(files) {
+    const summaries = [];
+
+    for (const file of files) {
+        const codeContent = await vscode.workspace.fs.readFile(vscode.Uri.file(file));
+        summaries.push(`${file}:\n${codeContent.toString()}`);
+    }
+
+    return summaries;
+}
+
 function deactivate() {}
 
 module.exports = {
-	activate,
-	deactivate
-}
+    activate,
+    deactivate
+};
