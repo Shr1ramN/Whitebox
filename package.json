@@ -1,39 +1,28 @@
 {
   "name": "whitebox",
-  "displayName": "whitebox",
-  "description": "code help",
+  "displayName": "Whitebox",
+  "description": "Python code analyzer extension",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.87.0"
+    "vscode": "^1.60.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onCommand:whitebox.analyzePythonFiles"
+  ],
   "main": "./extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "whitebox.helloWorld",
-        "title": "Hello World"
+        "command": "whitebox.analyzePythonFiles",
+        "title": "Analyze Python Files"
       }
     ]
   },
-  "scripts": {
-    "lint": "eslint .",
-    "pretest": "npm run lint",
-    "test": "vscode-test"
-  },
-  "devDependencies": {
-    "@types/mocha": "^10.0.6",
-    "@types/node": "18.x",
-    "@types/vscode": "^1.87.0",
-    "@vscode/test-cli": "^0.0.8",
-    "@vscode/test-electron": "^2.3.9",
-    "eslint": "^8.57.0",
-    "typescript": "^5.3.3"
-  },
   "dependencies": {
-    "transformers": "^3.1.0"
+    "axios": "^0.24.0",
+    "vscode": "^1.0.0"
   }
 }
