@@ -1,4 +1,23 @@
 const vscode = require('vscode');
+const axios = require('axios');
+
+async function query(data) {
+    try {
+        const response = await axios.post(
+            "https://api-inference.huggingface.co/models/bigcode/starcoder",
+            data,
+            {
+                headers: {
+                    Authorization: "Bearer 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",
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+        return response.data;
+    } catch (error) {
+        throw new Error(`Error querying GPT model API: ${error.message}`);
+    }
+}
 
 async function activate(context) {
     console.log('Congratulations, your extension "whitebox" is now active!');
@@ -22,7 +41,11 @@ async function activate(context) {
             const summaryFilePath = vscode.Uri.file(`${folderPath}/summaries.txt`);
             await vscode.workspace.fs.writeFile(summaryFilePath, Buffer.from(summaries.join('\n'), 'utf8'));
 
-            vscode.window.showInformationMessage(`Summaries generated and saved to ${summaryFilePath}`);
+            // Send summaries.txt content to GPT model API
+            const gptResponse = await sendToGPT(summaries.join('\n'));
+            console.log('GPT API Response:', gptResponse);
+
+            vscode.window.showInformationMessage(`Summaries generated and sent to GPT model.`);
         } catch (error) {
             console.error('Error analyzing Python files:', error.message);
             vscode.window.showErrorMessage('Error analyzing Python files.');
@@ -48,6 +71,15 @@ async function analyzePythonCode(files) {
     }
 
     return summaries;
+}
+
+async function sendToGPT(content) {
+    try {
+        const gptResponse = await query({ inputs: content });
+        return gptResponse;
+    } catch (error) {
+        throw new Error(`Error sending data to GPT model API: ${error.message}`);
+    }
 }
 
 function deactivate() {}
