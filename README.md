@@ -40,7 +40,7 @@ Whitebox is a Visual Studio Code extension designed to aid developers in underst
 ## Usage
 
 - **Activate the extension**: Once installed, activate the Whitebox extension from the command palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on Mac) by searching for `Whitebox: Activate`.
-- **Ask questions**: Use the command palette to ask questions about your codebase, and Whitebox will provide responses using the OpenAI API.
+- **Ask questions**: Use the command palette to ask questions about your codebase, and Whitebox will provide responses using the Google Gemma API.
 
 
 ## Contact
